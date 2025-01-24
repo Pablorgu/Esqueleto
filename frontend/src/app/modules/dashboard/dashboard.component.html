@@ -1,0 +1,12 @@
+<div class="dashboard items-center content-center flex flex-col flex-nowrap justify-center p-[16px]" *ngIf="user">
+  <h1 >Mapa de {{ user?.email }}</h1>
+
+  
+  <div class="w-full h-64">
+    <app-mapas class="w-full h-full"></app-mapas>
+  </div>
+  <button class="fixed bottom-4 rounded bg-blue-500 px-6 py-2 font-bold text-white shadow-lg hover:bg-blue-700" (click)="logOut()">LogOut</button>
+  <button class="fixed right-4 top-4 rounded bg-blue-500 px-6 py-2 font-bold text-white shadow-lg hover:bg-blue-700" (click)="toProfile()">Profile</button>
+  <button class="fixed left-4 top-4 rounded bg-blue-500 px-6 py-2 font-bold text-white shadow-lg hover:bg-blue-700" (click)="crearEvento()">Crear Marcador</button>
+  <button class="fixed left-4 bottom-4 rounded bg-blue-500 px-6 py-2 font-bold text-white shadow-lg hover:bg-blue-700" (click)="toLog()">Ver log</button>
+</div>
