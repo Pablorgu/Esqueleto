@@ -3,25 +3,30 @@ import os
 import pymongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from cachetools import TTLCache
 
-from models.mapa import MapaId, Mapa, MapaNew, MapaUpdate
+from models.marcador import MarcadorFilter, MarcadorId, Marcador, MarcadorList, MarcadorNew, MarcadorUpdate
 
 load_dotenv()
 MONGO_URL = os.getenv("MONGO_URL")
 MONGO_DB = os.getenv("MONGO_DB") or ""
 
-mapas_bp = APIRouter(prefix="/parcial/mapas", tags=["mapas"])
+marcadores_bp = APIRouter(prefix="/marcadores", tags=["marcadores"])
 
 client = pymongo.MongoClient(MONGO_URL)
 db = client[MONGO_DB]
-mapas = db.mapas
+marcadores = db.marcadores
 
 cache = TTLCache(maxsize=100, ttl=3600)
 
+@marcadores_bp.get("/todos")
+def get_marcadores(filtro: MarcadorFilter = Depends()):
+    filter = filtro.to_mongo_dict(exclude_none=True)
+    marcadores_data = marcadores.find(filter)
+    return MarcadorList(marcadores=[marcador for marcador in marcadores_data]).model_dump(exclude_none=True)
 
-@mapas_bp.get("/")
+@marcadores_bp.get("/")
 def get_mapas_por_query_o_coords(q: str = None, lat: str = None, lon: str = None):
     if q:
         if q in cache:
@@ -81,74 +86,60 @@ def get_mapas_por_query_o_coords(q: str = None, lat: str = None, lon: str = None
         )
 
 
-@mapas_bp.get("/{id}", response_model=Mapa)
-def get_mapa_por_id(id):
+@marcadores_bp.get("/{id}", response_model=Marcador)
+def get_marcador_por_id(id):
     try:
-        mapa = mapas.find_one({"_id": ObjectId(id)})
-        if not mapa:
-            raise HTTPException(status_code=404, detail="Mapa no encontrado")
+        marcador = marcadores.find_one({"_id": ObjectId(id)})
+        if not marcador:
+            raise HTTPException(status_code=404, detail="Marcador no encontrado")
 
-        return mapa
+        return marcador
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error al buscar el mapa: {str(e)}"
+            status_code=400, detail=f"Error al buscar el marcador: {str(e)}"
+        )
+
+@marcadores_bp.post("/")
+def create_marcador(marcador: MarcadorNew):
+    try:
+        marcador_data = marcador.to_mongo_dict(exclude_none=True)
+        marcador_id = marcadores.insert_one(marcador_data).inserted_id
+        return MarcadorId(idMapa=str(marcador_id))
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Error al crerar el marcador: {str(e)}"
         )
 
 
-@mapas_bp.get("/entrada/{idEntrada}", response_model=Mapa)
-def get_mapa_por_entrada(idEntrada):
-    try:
-        mapa = mapas.find_one({"idEntrada": ObjectId(idEntrada)})
-        if not mapa:
-            raise HTTPException(status_code=404, detail="Mapa no encontrado")
-        return mapa
-    except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Error al buscar el mapa: {str(e)}"
-        )
-
-
-@mapas_bp.post("/")
-def create_mapa(mapa: MapaNew):
-    try:
-        mapa_data = mapa.to_mongo_dict(exclude_none=True)
-        mapa_id = mapas.insert_one(mapa_data).inserted_id
-        return MapaId(idMapa=str(mapa_id))
-    except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Error al crerar el mapa: {str(e)}"
-        )
-
-
-@mapas_bp.put("/{id}")
-def update_mapa(id, mapa: MapaUpdate):
+@marcadores_bp.put("/{id}")
+def update_marcador(id, marcador: MarcadorUpdate):
     try:
         filter = {"_id": ObjectId(id)}
-        mapa_existente = mapas.find_one(filter)
-        if not mapa_existente:
-            raise HTTPException(status_code=404, detail="Mapa no encontrado")
+        marcador_existente = marcadores.find_one(filter)
+        if not marcador_existente:
+            raise HTTPException(status_code=404, detail="Marcador no encontrado")
 
-        res = mapas.update_one(filter, {"$set": mapa.to_mongo_dict(exclude_none=True)})
+        res = marcadores.update_one(filter, {"$set": marcador.to_mongo_dict(exclude_none=True)})
 
         if res.modified_count == 0:
-            raise HTTPException(status_code=404, detail="No se pudo actualizar el mapa")
+            raise HTTPException(status_code=404, detail="No se pudo actualizar el marcador")
 
-        return {"message": "Mapa actualizado correctamente"}
+        return {"message": "Marcador actualizado correctamente"}
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error al actualizar el mapa: {str(e)}"
+            status_code=400, detail=f"Error al actualizar el marcador: {str(e)}"
         )
 
 
-@mapas_bp.delete("/{id}")
-def delete_mapa(id):
+@marcadores_bp.delete("/{id}")
+def delete_marcador(id):
     try:
-        res = mapas.delete_one({"_id": ObjectId(id)})
+        res = marcadores.delete_one({"_id": ObjectId(id)})
         if res.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Mapa no encontrado")
+            raise HTTPException(status_code=404, detail="Marcador no encontrado")
 
-        return {"message": f"Mapa con ID {id} eliminado"}
+        return {"message": f"Marcador con ID {id} eliminado"}
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error al eliminar el mapa: {str(e)}"
+            status_code=400, detail=f"Error al eliminar el marcador: {str(e)}"
         )

@@ -8,7 +8,7 @@ import { map } from "rxjs/operators";
   providedIn: 'root'
 })
 export class LogService {
-  private apiUrl = environment.BACKEND_URL + '/parcial/usuarios/';
+  private apiUrl = environment.BACKEND_URL + '/usuarios/';
   private logs: any[] = [];
 
   constructor(private http: HttpClient) {}

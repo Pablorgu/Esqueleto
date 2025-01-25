@@ -8,7 +8,7 @@ from models.visita import Visita, VisitaList, VisitaNew, VisitaQuery, VisitaUpda
 
 load_dotenv()
 MONGO_URL = os.getenv("MONGO_URL")
-MONGO_DB = os.getenv("MONGO_DB")
+MONGO_DB = os.getenv("MONGO_DB") or ""
 
 visitas_bp = APIRouter(prefix="/visitas", tags=["visitas"])
 

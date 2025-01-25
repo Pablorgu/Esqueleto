@@ -6,20 +6,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from middlewares.auth import AuthMiddleware
 from services.archivos import archivos_bp
-from services.mapas import mapas_bp
+from services.marcador import marcadores_bp
 from services.usuarios import usuarios_router
-from services.marcadores import marcadores_bp
 from services.visitas import visitas_bp
+
 
 load_dotenv()
 
 app = FastAPI()
 
 # Registrar los microservicios como BlueprintsS
-app.include_router(mapas_bp)
+app.include_router(marcadores_bp)
 app.include_router(archivos_bp)
 app.include_router(usuarios_router)
-app.include_router(marcadores_bp)
 app.include_router(visitas_bp)
 
 app.add_middleware(AuthMiddleware)

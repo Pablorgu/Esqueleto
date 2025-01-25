@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { AuthGoogleService } from '../../services/auth-google.service';
 import { UserService } from '../../services/user.service';
 import { MapasComponent } from "../mapas/mapas.component";
+import { MapasService } from '../../services/mapas.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NgIf, MapasComponent],
+  imports: [MapasComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -20,6 +21,7 @@ export class DashboardComponent implements OnInit {
     private authService: AuthGoogleService,
     private router: Router,
     private userService: UserService,
+    private mapService: MapasService
   ) {
     this.profile = this.authService.profile;
   }
@@ -50,7 +52,7 @@ export class DashboardComponent implements OnInit {
   }
 
   crearEvento() {
-    this.router.navigate(['/crear-evento']);
+     this.router.navigate(['/eventos']);
   }
 
   toLog() {

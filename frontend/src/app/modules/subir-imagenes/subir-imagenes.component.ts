@@ -33,7 +33,7 @@ export class SubirImagenesComponent {
 
       try {
         const response = await fetch(
-          environment.BACKEND_URL + "/parcial/archivos/subir",
+          environment.BACKEND_URL + "/archivos/subir",
           {
             method: "POST",
             body: formData,

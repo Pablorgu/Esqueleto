@@ -12,7 +12,7 @@ load_dotenv()
 MONGO_URL = os.getenv("MONGO_URL")
 MONGO_DB = os.getenv("MONGO_DB") or ""
 
-archivos_bp = APIRouter(prefix="/parcial/archivos", tags=["archivos"])
+archivos_bp = APIRouter(prefix="/archivos", tags=["archivos"])
 
 # Configuración de MongoDB
 client = pymongo.MongoClient(MONGO_URL)
